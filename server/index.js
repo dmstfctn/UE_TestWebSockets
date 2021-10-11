@@ -11,6 +11,9 @@ const io = new Server(server);
 app.get('/', (req, res) => {  
     res.sendFile( path.join(__dirname, 'public', 'index.html' ) );
 });
+app.get('/joy.js', (req, res) => {  
+    res.sendFile( path.join(__dirname, 'public', 'joy.js' ) );
+});
 
 const cameras = [];
 let cameraCount = 0;
@@ -57,10 +60,8 @@ io.of('/controller').on('connection', (socket) => {
         });
     } else {
         socket.emit( 'message', 'No free cameras; ' );
-    }    
+    }   
 });
-
-
 
 server.listen(3000, () => {  
     console.log('listening on *:3000');

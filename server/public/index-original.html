@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control</title>
+    <style>
+        html, body{
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+        }
+        body{
+            padding: 0 2rem;
+        }
+        .messages-container{
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            opacity: 0.5;
+            pointer-events: none;            
+        }
+            .messages-container .message{
+                padding: 1rem;
+            }
+        .controls{
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            bottom: 0;
+            left: 50%;
+            transform: translate( -50%, -50% );
+        }
+        .controls button{
+            width: 50px;
+            height: 50px;
+            font-size: 50px;
+            padding: 0;
+            display: block;
+            line-height: 1;
+            border: none;
+            background: transparent;
+            position: absolute;
+        }
+            .controls button:active{
+                filter: opacity(0.75);
+            }
+                .control-up{
+                    top: 0;
+                    left: 50%;
+                    transform: translateX(-50%);
+                }
+                .control-down{
+                    bottom: 0;
+                    left: 50%;
+                    transform: translateX(-50%);
+                }
+                .control-left{
+                    left: 0;
+                    top: 50%;
+                    transform: translateY(-50%);
+                }
+                .control-right{
+                    right: 0;
+                    top: 50%;
+                    transform: translateY(-50%);
+                }
+    </style>
+</head>
+<body>
+    <div class="messages-container"></div>
+
+    <div class="controls">
+        <button class="control-up">⬆️</button>
+        <button class="control-down">⬇️</button>
+        <button class="control-left">⬅️</button>
+        <button class="control-right">➡️</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>  
+        const tickRate = 1000/30;
+        const initControl = function( $element, emitData ){
+            let intervalTimer;
+            $element.addEventListener('mousedown', function(){
+                intervalTimer = setInterval(function(){
+                    socket.emit('control', emitData );
+                }, tickRate );
+            });
+            window.addEventListener('mouseup', function(){
+                clearInterval( intervalTimer );
+            });
+        }
+
+        const $messagesContainer = document.querySelector('.messages-container');
+
+        const socket = io('/controller');
+        socket.on('message', function(msg ){
+            const $message = document.createElement('div');
+            $message.innerHTML = msg; 
+            $messagesContainer.appendChild($message);
+            setTimeout(function(){
+                $messagesContainer.removeChild( $message );
+            }, 5000 );
+        });
+
+        initControl( document.querySelector('.control-up'), {x: 5, y: 0} );
+        initControl( document.querySelector('.control-down'), {x: -5, y: 0} );
+        initControl( document.querySelector('.control-left'), {x: 0, y: -5} );
+        initControl( document.querySelector('.control-right'), {x: 0, y: 5} );
+       
+    </script>
+</body>
+</html>
